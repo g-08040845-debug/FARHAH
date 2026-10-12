@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ms" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARABIC WORD HUNTER – صَيَّادُ الْكَلِمَاتِ الْعَرَبِيَّةِ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        .font-arabic {
+            font-family: 'Amiri', serif;
+            direction: rtl;
+        }
+        .card-flip {
+            perspective: 1000px;
+        }
+        .card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        @keyframes pulse-correct {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+        .animate-correct {
+            animation: pulse-correct 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between p-4 md:p-6">
+
+    <!-- HEADER / NAVIGATION BAR -->
+    <header class="max-w-4xl w-full mx-auto flex justify-between items-center bg-slate-800/80 backdrop-blur border border-slate-700 p-4 rounded-2xl shadow-xl mb-6">
+        <div class="flex items-center gap-3">
+            <span class="text-3xl">🏹</span>
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold text-amber-400">ARABIC WORD HUNTER</h1>
+                <p class="text-xs text-slate-300 font-arabic">صَيَّادُ الْكَلِمَاتِ الْعَرَبِيَّةِ</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="bg-amber-500/20 border border-amber-500/40 px-3 py-1.5 rounded-xl text-center">
+                <span class="text-xs text-amber-300 block">Mata</span>
+                <span id="score-display" class="text-lg font-bold text-amber-400">0</span>
+            </div>
+            <button onclick="toggleAudio()" id="audio-btn" class="p-2.5 bg-slate-700 hover:bg-slate-600 rounded-xl text-lg">🔊</button>
+            <button onclick="showScreen('screen-main')" class="p-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-semibold text-sm">🏠 Utam</button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-4xl w-full mx-auto flex-grow flex flex-col justify-center">
+
+        <!-- SCREEN 1: UTAMA / MENU -->
+        <section id="screen-main" class="space-y-6 text-center">
+            <div class="bg-slate-800/60 border border-slate-700 p-8 rounded-3xl backdrop-blur">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-amber-400 mb-2">Selamat Datang, Pemburu Kata!</h2>
+                <p class="text-slate-300 mb-6">Kuasai kosa kata Bahasa Arab DSKP dengan cabaran interaktif dan seronok.</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-left">
+                    <button onclick="startMode(1)" class="bg-gradient-to-br from-indigo-600 to-blue-700 hover:from-indigo-500 hover:to-blue-600 p-5 rounded-2xl shadow-lg border border-indigo-400/30 transition transform hover:-translate-y-1">
+                        <span class="text-3xl block mb-1">🎧</span>
+                        <h3 class="font-bold text-lg text-white">1. Dengar & Pilih</h3>
+                        <p class="text-xs text-indigo-200 font-arabic">اِسْمَعْ وَاخْتَرْ</p>
+                    </button>
+
+                    <button onclick="startMode(2)" class="bg-gradient-to-br from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 p-5 rounded-2xl shadow-lg border border-emerald-400/30 transition transform hover:-translate-y-1">
+                        <span class="text-3xl block mb-1">🔗</span>
+                        <h3 class="font-bold text-lg text-white">2. Padankan Kad</h3>
+                        <p class="text-xs text-emerald-200 font-arabic">صِلِ الْكَلِمَاتِ</p>
+                    </button>
+
+                    <button onclick="startMode(3)" class="bg-gradient-to-br from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 p-5 rounded-2xl shadow-lg border border-rose-400/30 transition transform hover:-translate-y-1">
+                        <span class="text-3xl block mb-1">⚡</span>
+                        <h3 class="font-bold text-lg text-white">3. Misi Pantas</h3>
+                        <p class="text-xs text-rose-200 font-arabic">تَحَدِّي السُّرْعَةِ</p>
+                    </button>
+
+                    <button onclick="startMode(4)" class="bg-gradient-to-br from-amber-600 to-orange-700 hover:from-amber-500 hover:to-orange-600 p-5 rounded-2xl shadow-lg border border-amber-400/30 transition transform hover:-translate-y-1">
+                        <span class="text-3xl block mb-1">🎯</span>
+                        <h3 class="font-bold text-lg text-white">4. Pilih Jawapan</h3>
+                        <p class="text-xs text-amber-200 font-arabic">اِخْتَرِ الْإِجَابَةَ</p>
+                    </button>
+
+                    <button onclick="startMode(5)" class="bg-gradient-to-br from-purple-600 to-violet-700 hover:from-purple-500 hover:to-violet-600 p-5 rounded-2xl shadow-lg border border-purple-400/30 transition transform hover:-translate-y-1">
+                        <span class="text-3xl block mb-1">🃏</span>
+                        <h3 class="font-bold text-lg text-white">5. Buka Kad Rahsia</h3>
+                        <p class="text-xs text-purple-200 font-arabic">اِكْتَشِفِ الْبِطَاقَاتِ</p>
+                    </button>
+
+                    <button onclick="startMode(6)" class="bg-gradient-to-br from-fuchsia-600 to-pink-700 hover:from-fuchsia-500 hover:to-pink-600 p-5 rounded-2xl shadow-lg border border-fuchsia-400/30 transition transform hover:-translate-y-1">
+                        <span class="text-3xl block mb-1">👾</span>
+                        <h3 class="font-bold text-lg text-white">6. Boss Battle</h3>
+                        <p class="text-xs text-fuchsia-200 font-arabic">مَعْرَكَةُ الزَّعِيمِ</p>
+                    </button>
+                </div>
+
+                <div class="mt-8 flex flex-wrap justify-center gap-4">
+                    <button onclick="showScreen('screen-teacher')" class="bg-slate-700 hover:bg-slate-600 px-5 py-2.5 rounded-xl font-semibold text-sm border border-slate-500 flex items-center gap-2">
+                        <span>👨‍🏫 Mod Guru & Kosa Kata</span>
+                    </button>
+                    <button onclick="showScreen('screen-badges')" class="bg-slate-700 hover:bg-slate-600 px-5 py-2.5 rounded-xl font-semibold text-sm border border-slate-500 flex items-center gap-2">
+                        <span>🏆 Lencana & Pencapaian</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: GAMEPLAY (QUIZ / MULTIPLE CHOICE) -->
+        <section id="screen-gameplay" class="hidden space-y-6">
+            <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-3xl shadow-2xl relative">
+                <!-- Progress & Timer Bar -->
+                <div class="flex justify-between items-center mb-4 text-sm font-semibold text-slate-300">
+                    <span id="game-title-display">Mod Permainan</span>
+                    <span id="timer-display" class="text-amber-400 text-lg font-bold">⏱️ --</span>
+                </div>
+
+                <!-- Soalan / Perkataan Utama -->
+                <div class="bg-slate-900/80 p-8 rounded-2xl text-center border border-slate-700 mb-6 relative">
+                    <div id="question-arabic" class="text-4xl md:text-5xl font-bold font-arabic text-amber-300 mb-3">--</div>
+                    <div id="question-sub" class="text-slate-400 text-sm md:text-base">--</div>
+                    <button id="play-audio-btn" onclick="playCurrentAudio()" class="mt-4 bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 mx-auto">
+                        🔊 Dengar Sebutan
+                    </button>
+                </div>
+
+                <!-- Pilihan Jawapan -->
+                <div id="options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Dynamic Buttons -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: BOSS BATTLE -->
+        <section id="screen-boss" class="hidden space-y-6">
+            <div class="bg-slate-800/80 border border-red-500/40 p-6 rounded-3xl shadow-2xl text-center relative overflow-hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-red-400 font-bold uppercase tracking-wider text-sm">👑 Raja Kosa Kata</span>
+                    <span id="boss-hp-text" class="text-amber-400 font-bold">HP: 100/100</span>
+                </div>
+
+                <!-- Boss Avatar & Health Bar -->
+                <div class="mb-6">
+                    <div class="text-7xl mb-2 animate-bounce">👹</div>
+                    <div class="w-full bg-slate-700 h-4 rounded-full overflow-hidden border border-slate-600">
+                        <div id="boss-hp-bar" class="bg-red-500 h-full w-full transition-all duration-300"></div>
+                    </div>
+                </div>
+
+                <!-- Soalan Boss -->
+                <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-700 mb-6">
+                    <div id="boss-question-arabic" class="text-3xl md:text-4xl font-bold font-arabic text-amber-300 mb-2">--</div>
+                    <p class="text-xs text-slate-400">Pilih makna yang betul untuk menyerang Bos!</p>
+                </div>
+
+                <div id="boss-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Dynamic Options -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 4: MOD GURU & PENGURUSAN DATA -->
+        <section id="screen-teacher" class="hidden space-y-6">
+            <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-3xl shadow-xl">
+                <h2 class="text-2xl font-bold text-amber-400 mb-4">👨‍🏫 Mod Pengurusan Guru</h2>
+                <p class="text-sm text-slate-300 mb-6">Tambah, edit, atau muat naik perkataan Arab untuk murid anda.</p>
+
+                <!-- Form Tambah Perkataan -->
+                <form id="add-word-form" onsubmit="handleAddWord(event)" class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700 grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Perkataan Arab (Baris)</label>
+                        <input type="text" id="input-arabic" required placeholder="مثال: المَطَار" class="w-full bg-slate-800 border border-slate-600 rounded-xl p-2.5 text-sm text-white font-arabic focus:outline-none focus:border-amber-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Makna Bahasa Melayu</label>
+                        <input type="text" id="input-malay" required placeholder="Contoh: Lapangan Terbang" class="w-full bg-slate-800 border border-slate-600 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-amber-400">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2.5 rounded-xl transition">➕ Tambah Perkataan</button>
+                    </div>
+                </form>
+
+                <!-- Senarai Perkataan -->
+                <div class="max-h-60 overflow-y-auto rounded-xl border border-slate-700 bg-slate-900/40">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-700 text-slate-200">
+                            <tr>
+                                <th class="p-3">Bahasa Arab</th>
+                                <th class="p-3">Bahasa Melayu</th>
+                                <th class="p-3 text-center">Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vocab-table-body" class="divide-y divide-slate-800">
+                            <!-- Dynamic Table Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 5: LENCANA & PENCAPAIAN -->
+        <section id="screen-badges" class="hidden space-y-6">
+            <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-3xl text-center">
+                <h2 class="text-2xl font-bold text-amber-400 mb-2">🏆 Lencana & Pencapaian</h2>
+                <p class="text-sm text-slate-300 mb-6">Kumpul lencana dengan menyelesaikan pelbagai cabaran kosa kata.</p>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700 text-center">
+                        <span class="text-4xl block mb-2">🏹</span>
+                        <h4 class="font-bold text-amber-300 text-sm">Pemburu Perkataan</h4>
+                        <p class="text-xs text-slate-400 mt-1">Dapatkan 50 Mata Pertama</p>
+                    </div>
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700 text-center">
+                        <span class="text-4xl block mb-2">📚</span>
+                        <h4 class="font-bold text-amber-300 text-sm">Juara Kosa Kata</h4>
+                        <p class="text-xs text-slate-400 mt-1">Jawab 10 Soalan Betul</p>
+                    </div>
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700 text-center">
+                        <span class="text-4xl block mb-2">👑</span>
+                        <h4 class="font-bold text-amber-300 text-sm">Raja Hafalan</h4>
+                        <p class="text-xs text-slate-400 mt-1">Tewaskan Bos Utama</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="max-w-4xl w-full mx-auto text-center text-xs text-slate-500 mt-6 py-2">
+        ARABIC WORD HUNTER &copy; 2026 — Disesuaikan untuk Pembelajaran DSKP Bahasa Arab Sekolah.
+    </footer>
+
+    <!-- LOGIK JAVASCRIPT -->
+    <script>
+        // DATA KOSA KATA UTAMA (BERDASARKAN DSKP LAM TINGKATAN 2)
+        const defaultVocab = [
+            { id: 1, ar: "صَالَةُ الْمُغَادَرَةِ", ms: "Balai Berlepas" },
+            { id: 2, ar: "صَالَةُ الْوُصُولِ", ms: "Balai Ketibaan" },
+            { id: 3, ar: "الْبَوَّابَةُ", ms: "Pintu Gate" },
+            { id: 4, ar: "التَّذْكِرَةُ", ms: "Tiket" },
+            { id: 5, ar: "الطَّائِرَةُ", ms: "Kapal Terbang" },
+            { id: 6, ar: "الْجَوَازَاتُ", ms: "Pasport" },
+            { id: 7, ar: "الْمُوَاطِنُ", ms: "Penduduk / Warganegara" },
+            { id: 8, ar: "الْحُكُومَةُ", ms: "Kerajaan" },
+            { id: 9, ar: "الْمَلِكُ الْمُعَظَّمُ", ms: "Yang di-Pertuan Agong" },
+            { id: 10, ar: "الْكَوْنُ", ms: "Alam" },
+            { id: 11, ar: "الْحَيَوَانُ", ms: "Binatang" },
+            { id: 12, ar: "النَّبَاتُ", ms: "Tumbuhan" }
+        ];
+
+        let vocabulary = JSON.parse(localStorage.getItem('arabic_vocab')) || defaultVocab;
+        let currentScore = parseInt(localStorage.getItem('arabic_score')) || 0;
+        let currentWord = null;
+        let currentTimer = null;
+        let audioEnabled = true;
+        let bossHP = 100;
+
+        // INITALIZATION
+        document.getElementById('score-display').innerText = currentScore;
+        renderTeacherTable();
+
+        // AUDIO ENGINE (Web Audio API & Web Speech API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (!audioEnabled) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, audioCtx.currentTime); // A3
+                osc.frequency.setValueAtTime(174.61, audioCtx.currentTime + 0.15); // F3
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            }
+        }
+
+        function speakArabic(text) {
+            if (!audioEnabled) return;
+            window.speechSynthesis.cancel(); // Stop previous voice
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ar-SA';
+            utterance.rate = 0.85;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            document.getElementById('audio-btn').innerText = audioEnabled ? '🔊' : '🔇';
+        }
+
+        // NAVIGATION SYSTEM
+        function showScreen(screenId) {
+            if (currentTimer) clearInterval(currentTimer);
+            ['screen-main', 'screen-gameplay', 'screen-boss', 'screen-teacher', 'screen-badges'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        // GAME MODES ROUTER
+        function startMode(modeNum) {
+            if (vocabulary.length < 4) {
+                alert("Sila pastikan sekurang-kurangnya 4 perkataan didaftarkan dalam Mod Guru.");
+                return;
+            }
+
+            if (modeNum === 6) {
+                initBossBattle();
+                return;
+            }
+
+            showScreen('screen-gameplay');
+            setupQuestion(modeNum);
+        }
+
+        function getRandomWord() {
+            return vocabulary[Math.floor(Math.random() * vocabulary.length)];
+        }
+
+        function getDistractors(correctItem, count = 3) {
+            let filtered = vocabulary.filter(item => item.id !== correctItem.id);
+            filtered.sort(() => 0.5 - Math.random());
+            return filtered.slice(0, count);
+        }
+
+        function setupQuestion(modeNum) {
+            currentWord = getRandomWord();
+            const titleMap = {
+                1: "Mod 1: Dengar & Pilih (اِسْمَعْ وَاخْتَرْ)",
+                2: "Mod 2: Padankan Perkataan (صِلِ الْكَلِمَاتِ)",
+                3: "Mod 3: Misi Pantas (تَحَدِّي السُّرْعَةِ)",
+                4: "Mod 4: Pilih Jawapan Betul (اِخْتَرِ الْإِجَابَةَ)",
+                5: "Mod 5: Buka Kad Rahsia (اِكْتَشِفِ الْبِطَاقَاتِ)"
+            };
+            document.getElementById('game-title-display').innerText = titleMap[modeNum] || "Kuis";
+
+            const arabicElem = document.getElementById('question-arabic');
+            const subElem = document.getElementById('question-sub');
+            const audioBtn = document.getElementById('play-audio-btn');
+            const timerElem = document.getElementById('timer-display');
+
+            timerElem.innerText = "⏱️ --";
+            if (currentTimer) clearInterval(currentTimer);
+
+            if (modeNum === 1) { // Audio Mode
+                arabicElem.innerText = "❓🔊";
+                subElem.innerText = "Dengar audio dan pilih perkataan Arab yang betul";
+                audioBtn.classList.remove('hidden');
+                speakArabic(currentWord.ar);
+            } else {
+                arabicElem.innerText = currentWord.ar;
+                subElem.innerText = "Pilih makna Bahasa Melayu yang berpadanan";
+                audioBtn.classList.add('hidden');
+            }
+
+            // Mode 3 Timer Setup
+            if (modeNum === 3) {
+                let timeLeft = 10;
+                timerElem.innerText = `⏱️ ${timeLeft}s`;
+                currentTimer = setInterval(() => {
+                    timeLeft--;
+                    timerElem.innerText = `⏱️ ${timeLeft}s`;
+                    if (timeLeft <= 0) {
+                        clearInterval(currentTimer);
+                        playSound('wrong');
+                        alert("Masa Tamat! ⌛");
+                        setupQuestion(modeNum);
+                    }
+                }, 1000);
+            }
+
+            // Generate Options
+            const optionsGrid = document.getElementById('options-grid');
+            optionsGrid.innerHTML = '';
+
+            let options = [currentWord, ...getDistractors(currentWord, 3)];
+            options.sort(() => 0.5 - Math.random());
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "bg-slate-700 hover:bg-slate-600 border border-slate-600 p-4 rounded-2xl font-bold text-lg text-slate-100 transition transform hover:scale-102 flex flex-col items-center justify-center min-h-[80px]";
+                
+                if (modeNum === 1) {
+                    btn.innerHTML = `<span class="font-arabic text-2xl text-amber-300">${opt.ar}</span>`;
+                } else {
+                    btn.innerText = opt.ms;
+                }
+
+                btn.onclick = () => checkAnswer(opt.id === currentWord.id, modeNum);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function playCurrentAudio() {
+            if (currentWord) speakArabic(currentWord.ar);
+        }
+
+        function checkAnswer(isCorrect, modeNum) {
+            if (currentTimer) clearInterval(currentTimer);
+
+            if (isCorrect) {
+                playSound('correct');
+                addScore(10);
+                alert("Jawapan Tepat! 🎉 (+10 Mata)");
+            } else {
+                playSound('wrong');
+                alert(`Kurang Tepat! Jawapan betul: ${currentWord.ms} (${currentWord.ar})`);
+            }
+            setupQuestion(modeNum);
+        }
+
+        function addScore(pts) {
+            currentScore += pts;
+            localStorage.setItem('arabic_score', currentScore);
+            document.getElementById('score-display').innerText = currentScore;
+        }
+
+        // BOSS BATTLE MODE
+        function initBossBattle() {
+            bossHP = 100;
+            showScreen('screen-boss');
+            updateBossUI();
+            setupBossQuestion();
+        }
+
+        function updateBossUI() {
+            document.getElementById('boss-hp-text').innerText = `HP: ${bossHP}/100`;
+            document.getElementById('boss-hp-bar').style.width = `${bossHP}%`;
+        }
+
+        function setupBossQuestion() {
+            currentWord = getRandomWord();
+            document.getElementById('boss-question-arabic').innerText = currentWord.ar;
+
+            const grid = document.getElementById('boss-options-grid');
+            grid.innerHTML = '';
+
+            let options = [currentWord, ...getDistractors(currentWord, 3)];
+            options.sort(() => 0.5 - Math.random());
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "bg-rose-950/40 hover:bg-rose-900/60 border border-rose-700/50 p-4 rounded-2xl font-bold text-slate-200 transition text-sm";
+                btn.innerText = opt.ms;
+                btn.onclick = () => attackBoss(opt.id === currentWord.id);
+                grid.appendChild(btn);
+            });
+        }
+
+        function attackBoss(isCorrect) {
+            if (isCorrect) {
+                playSound('correct');
+                bossHP -= 25;
+                if (bossHP <= 0) {
+                    bossHP = 0;
+                    updateBossUI();
+                    alert("🎆 TAHNIAH! Anda berjaya menewaskan Raja Kosa Kata! (+50 Mata Bonus)");
+                    addScore(50);
+                    showScreen('screen-main');
+                    return;
+                }
+                updateBossUI();
+                alert("Serangan Berjaya! HP Bos Berkurang! ⚔️");
+            } else {
+                playSound('wrong');
+                alert("Serangan Meleset! Bos membalas! 💥");
+            }
+            setupBossQuestion();
+        }
+
+        // MOD GURU (PENGURUSAN DATA)
+        function renderTeacherTable() {
+            const tbody = document.getElementById('vocab-table-body');
+            tbody.innerHTML = '';
+            vocabulary.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-800 hover:bg-slate-800/40";
+                tr.innerHTML = `
+                    <td class="p-3 font-arabic text-lg text-amber-300">${item.ar}</td>
+                    <td class="p-3 text-slate-200">${item.ms}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="deleteWord(${item.id})" class="text-rose-400 hover:text-rose-300 font-bold text-xs bg-rose-500/10 px-2.5 py-1 rounded-lg border border-rose-500/20">Padam</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function handleAddWord(e) {
+            e.preventDefault();
+            const arInput = document.getElementById('input-arabic').value.trim();
+            const msInput = document.getElementById('input-malay').value.trim();
+
+            if (arInput && msInput) {
+                const newWord = {
+                    id: Date.now(),
+                    ar: arInput,
+                    ms: msInput
+                };
+                vocabulary.push(newWord);
+                localStorage.setItem('arabic_vocab', JSON.stringify(vocabulary));
+                renderTeacherTable();
+                document.getElementById('add-word-form').reset();
+                alert("Perkataan berjaya ditambah!");
+            }
+        }
+
+        function deleteWord(id) {
+            if (confirm("Adakah anda pasti untuk memadam perkataan ini?")) {
+                vocabulary = vocabulary.filter(item => item.id !== id);
+                localStorage.setItem('arabic_vocab', JSON.stringify(vocabulary));
+                renderTeacherTable();
+            }
+        }
+    </script>
+</body>
+</html>
